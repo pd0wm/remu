@@ -2,7 +2,8 @@
 ```
 git clone --recursive https://github.com/riscv/riscv-gnu-toolchain
 cd riscv-gnu-toolchain
-./configure --prefix=/opt/riscv --with-arch=rv64i --with-abi=lp64
+mkdir build
+./configure --prefix=$(pwd)/build --with-arch=rv64i --with-abi=lp64
 make
 ```
 
