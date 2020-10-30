@@ -1,55 +1,38 @@
 use super::instruction_types::{Utype, Itype};
 
+macro_rules! ins {
+    ($n:ident, $t:ident) => {
+        struct $n {
+            inst: $t,
+        }
+
+        impl $n {
+            fn new(inst: $t) -> Self {
+                Self {inst: inst}
+            }
+        }
+    };
+}
+
 pub trait Instruction {
     fn disassemble(&self) -> String;
 }
 
-struct AUIPC {
-    inst: Utype
-}
-
-
-impl AUIPC {
-    fn new(inst: Utype) -> Self {
-        Self {inst: inst}
-    }
-}
-
-
+ins!(AUIPC, Utype);
 impl Instruction for AUIPC {
     fn disassemble(&self) -> String {
         format!("auipc {:?},{:#02x?}", self.inst.rd, self.inst.imm)
     }
 }
 
-struct LUI {
-    inst: Utype
-}
-
-impl LUI {
-    fn new(inst: Utype) -> Self {
-        Self {inst: inst}
-    }
-}
-
-
+ins!(LUI, Utype);
 impl Instruction for LUI {
     fn disassemble(&self) -> String {
         format!("auipc {:?},{:#02x?}", self.inst.rd, self.inst.imm)
     }
 }
 
-struct ADDI {
-    inst: Itype
-}
-
-impl ADDI {
-    fn new(inst: Itype) -> Self {
-        Self {inst: inst}
-    }
-}
-
-
+ins!(ADDI, Itype);
 impl Instruction for ADDI {
     fn disassemble(&self) -> String {
         format!("addi {:?},{:?},{:}", self.inst.rd, self.inst.rs1, self.inst.imm)
