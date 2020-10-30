@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[repr(usize)]
 pub enum Register {
@@ -34,4 +35,15 @@ pub enum Register {
     T5,
     T6,
     Pc,
+}
+
+
+impl From<u32> for Register {
+    fn from(val: u32) -> Self {
+        assert!(val < 33);
+        unsafe {
+            core::ptr::read_unaligned(&(val as usize) as
+                                      *const usize as *const Register)
+        }
+    }
 }
