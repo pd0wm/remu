@@ -1,7 +1,7 @@
 use super::instruction_types::{Utype, Itype};
 
 macro_rules! ins {
-    ($n:ident, $t:ident) => {
+    ($n:ident, $t:ident, $mn:expr) => {
         struct $n {
             inst: $t,
         }
@@ -9,6 +9,12 @@ macro_rules! ins {
         impl $n {
             fn new(inst: $t) -> Self {
                 Self {inst: inst}
+            }
+        }
+
+        impl Disassemble for $n {
+            fn disassemble(&self) -> String {
+                format!("{:} {:}", $mn, self.inst.disassemble())
             }
         }
 
@@ -23,26 +29,9 @@ pub trait Instruction : Disassemble {}
 impl<T: Disassemble> Instruction for T {}
 
 
-ins!(AUIPC, Utype);
-impl Disassemble for AUIPC {
-    fn disassemble(&self) -> String {
-        format!("auipc {:}", self.inst.disassemble())
-    }
-}
-
-ins!(LUI, Utype);
-impl Disassemble for LUI {
-    fn disassemble(&self) -> String {
-        format!("lui {:}", self.inst.disassemble())
-    }
-}
-
-ins!(ADDI, Itype);
-impl Disassemble for ADDI {
-    fn disassemble(&self) -> String {
-        format!("addi {:}", self.inst.disassemble())
-    }
-}
+ins!(AUIPC, Utype, "auipc");
+ins!(LUI, Utype, "lui");
+ins!(ADDI, Itype, "addi");
 
 
 pub fn parse_instruction(inst: u32) -> Box<dyn Instruction> {
