@@ -12,6 +12,7 @@ pub struct Mmu {
     pub entry_point : Option<VirtAddr>,
 }
 
+#[allow(dead_code)]
 impl Mmu {
     pub fn new(size: usize) -> Self {
         Mmu {

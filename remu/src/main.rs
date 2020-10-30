@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use clap::{Arg, App};
 use mmu::{Mmu, VirtAddr};
 
-use riscv::instruction::{Instruction, parse_instruction};
+use riscv::instruction::parse_instruction;
 use riscv::register::Register;
 
 
