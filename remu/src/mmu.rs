@@ -1,4 +1,6 @@
 use std::path::PathBuf;
+use std::convert::TryInto;
+
 
 #[repr(transparent)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -25,10 +27,13 @@ impl Mmu {
         r
     }
 
-    pub fn read(&self, addr: VirtAddr, size: usize) -> Vec<u8> {
-        let mut buf = vec![0; size];
-        self.read_into(addr, &mut buf);
-        buf
+    pub fn read(&self, addr: VirtAddr, size: usize) -> &[u8] {
+        &self.memory[addr.0..addr.0 + size]
+    }
+
+    pub fn read_u32(&self, addr: VirtAddr) -> u32 {
+        let bts : [u8; 4] = self.memory[addr.0..addr.0 + 4].try_into().unwrap();
+        u32::from_le_bytes(bts)
     }
 
     pub fn read_into(&self, addr: VirtAddr, buf: &mut [u8]) {
@@ -72,5 +77,10 @@ mod tests {
 
         mmu.write_from(addr, &dat);
         assert_eq!(dat, mmu.read(addr, dat.len()));
+
+        let mut dat2 = vec![0; 4];
+        mmu.read_into(addr, &mut dat2);
+        assert_eq!(dat, dat2);
+
     }
 }
