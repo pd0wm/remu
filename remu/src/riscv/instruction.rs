@@ -11,31 +11,36 @@ macro_rules! ins {
                 Self {inst: inst}
             }
         }
+
     };
 }
 
-pub trait Instruction {
+pub trait Disassemble {
     fn disassemble(&self) -> String;
 }
 
+pub trait Instruction : Disassemble {}
+impl<T: Disassemble> Instruction for T {}
+
+
 ins!(AUIPC, Utype);
-impl Instruction for AUIPC {
+impl Disassemble for AUIPC {
     fn disassemble(&self) -> String {
-        format!("auipc {:?},{:#02x?}", self.inst.rd, self.inst.imm)
+        format!("auipc {:}", self.inst.disassemble())
     }
 }
 
 ins!(LUI, Utype);
-impl Instruction for LUI {
+impl Disassemble for LUI {
     fn disassemble(&self) -> String {
-        format!("auipc {:?},{:#02x?}", self.inst.rd, self.inst.imm)
+        format!("lui {:}", self.inst.disassemble())
     }
 }
 
 ins!(ADDI, Itype);
-impl Instruction for ADDI {
+impl Disassemble for ADDI {
     fn disassemble(&self) -> String {
-        format!("addi {:?},{:?},{:}", self.inst.rd, self.inst.rs1, self.inst.imm)
+        format!("addi {:}", self.inst.disassemble())
     }
 }
 

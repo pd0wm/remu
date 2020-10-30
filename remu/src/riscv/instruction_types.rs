@@ -1,7 +1,8 @@
 // https://github.com/gamozolabs/fuzz_with_emus/blob/master/src/emulator.rs
 use super::register::Register;
+use super::instruction::Disassemble;
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Rtype {
     pub funct7: u32,
     pub rs2:    Register,
@@ -22,7 +23,7 @@ impl From<u32> for Rtype {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Stype {
     pub imm:    i32,
     pub rs2:    Register,
@@ -47,7 +48,7 @@ impl From<u32> for Stype {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Jtype {
     pub imm: i32,
     pub rd:  Register,
@@ -71,7 +72,7 @@ impl From<u32> for Jtype {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Btype {
     pub imm:    i32,
     pub rs2:    Register,
@@ -98,7 +99,7 @@ impl From<u32> for Btype {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Itype {
     pub imm:    i32,
     pub rs1:    Register,
@@ -118,7 +119,13 @@ impl From<u32> for Itype {
     }
 }
 
-#[derive(Debug)]
+impl Disassemble for Itype {
+    fn disassemble(&self) -> String {
+        format!("{:?},{:?},{:}", self.rd, self.rs1, self.imm)
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
 pub struct Utype {
     pub imm: i32,
     pub rd:  Register,
@@ -130,5 +137,11 @@ impl From<u32> for Utype {
             imm: ((inst & !0xfff) >> 12) as i32,
             rd:  Register::from((inst >> 7) & 0b11111),
         }
+    }
+}
+
+impl Disassemble for Utype {
+    fn disassemble(&self) -> String {
+        format!("{:?},{:#02x?}", self.rd, self.imm)
     }
 }
