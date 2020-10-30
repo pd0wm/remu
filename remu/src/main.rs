@@ -16,5 +16,5 @@ fn main() {
     let path = PathBuf::from(myfile);
 
     let mut mmu = Mmu::new(1024 * 1024);
-    mmu.load_elf(&path)
+    mmu.load_elf(&path);
 }

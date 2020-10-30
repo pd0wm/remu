@@ -7,6 +7,7 @@ pub struct VirtAddr(pub usize);
 pub struct Mmu {
     memory: Vec<u8>,
     cur_alloc: VirtAddr,
+    pub entry_point : Option<VirtAddr>,
 }
 
 impl Mmu {
@@ -14,6 +15,7 @@ impl Mmu {
         Mmu {
             memory: vec![0; size],
             cur_alloc: VirtAddr(0),
+            entry_point: None,
         }
     }
 
@@ -48,6 +50,7 @@ impl Mmu {
 
     pub fn load_elf(&mut self, path : &PathBuf) {
         let file = elf::File::open_path(&path).unwrap();
+        self.entry_point = Some(VirtAddr(file.ehdr.entry as usize));
 
         for section in &file.sections {
             if section.shdr.addr > 0 {
