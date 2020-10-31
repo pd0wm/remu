@@ -62,53 +62,49 @@ instr!(SLLW,  ItypeOp,     "sllw",  |_i: &ItypeOp, _m: &mut Machine| -> Result<(
 instr!(SRLW,  ItypeOp,     "srlw",  |_i: &ItypeOp, _m: &mut Machine| -> Result<(), VmExit> {Ok(())});
 instr!(SRAW,  ItypeOp,     "sraw",  |_i: &ItypeOp, _m: &mut Machine| -> Result<(), VmExit> {Ok(())});
 
-fn pack_ok(i : impl Instruction + 'static) -> Result<Box<dyn Instruction>, VmExit> {
-    Ok(Box::new(i))
-}
-
 
 pub fn parse_instruction(i: u32) -> Result<Box<dyn Instruction>, VmExit> {
     let opcode = i & 0b1111111;
 
     match opcode {
-        0b0010111 => {pack_ok(AUIPC::new(Utype::from(i)))},
-        0b0110111 => {pack_ok(LUI::new(Utype::from(i)))},
-        0b1101111 => {pack_ok(JAL::new(Jtype::from(i)))},
-        0b1100111 => {pack_ok(JALR::new(Itype::from(i)))},
+        0b0010111 => {Ok(Box::new(AUIPC::new(Utype::from(i))))},
+        0b0110111 => {Ok(Box::new(LUI::new(Utype::from(i))))},
+        0b1101111 => {Ok(Box::new(JAL::new(Jtype::from(i))))},
+        0b1100111 => {Ok(Box::new(JALR::new(Itype::from(i))))},
         0b1100011 => {
             let inst = Btype::from(i);
             match inst.funct3 {
-                0b000 => {pack_ok(BEQ::new(inst))},
-                0b001 => {pack_ok(BNE::new(inst))},
-                0b100 => {pack_ok(BLT::new(inst))},
-                0b101 => {pack_ok(BGE::new(inst))},
-                0b110 => {pack_ok(BLTU::new(inst))},
-                0b111 => {pack_ok(BGEU::new(inst))},
+                0b000 => {Ok(Box::new(BEQ::new(inst)))},
+                0b001 => {Ok(Box::new(BNE::new(inst)))},
+                0b100 => {Ok(Box::new(BLT::new(inst)))},
+                0b101 => {Ok(Box::new(BGE::new(inst)))},
+                0b110 => {Ok(Box::new(BLTU::new(inst)))},
+                0b111 => {Ok(Box::new(BGEU::new(inst)))},
                 _ => Err(VmExit::InvalidOpcode(i)),
             }
         },
         0b0000011 => {
             let inst = Itype::from(i);
             match inst.funct3 {
-                0b000 => {pack_ok(LB::new(inst))},
-                0b001 => {pack_ok(LH::new(inst))},
-                0b010 => {pack_ok(LW::new(inst))},
-                0b100 => {pack_ok(LBU::new(inst))},
-                0b101 => {pack_ok(LHU::new(inst))},
+                0b000 => {Ok(Box::new(LB::new(inst)))},
+                0b001 => {Ok(Box::new(LH::new(inst)))},
+                0b010 => {Ok(Box::new(LW::new(inst)))},
+                0b100 => {Ok(Box::new(LBU::new(inst)))},
+                0b101 => {Ok(Box::new(LHU::new(inst)))},
                 // RV64I
-                0b110 => {pack_ok(LWU::new(inst))},
-                0b011 => {pack_ok(LD::new(inst))},
+                0b110 => {Ok(Box::new(LWU::new(inst)))},
+                0b011 => {Ok(Box::new(LD::new(inst)))},
                 _ => Err(VmExit::InvalidOpcode(i)),
             }
         },
         0b0100011 => {
             let inst = Stype::from(i);
             match inst.funct3 {
-                0b000 => {pack_ok(SB::new(inst))},
-                0b001 => {pack_ok(SH::new(inst))},
-                0b010 => {pack_ok(SW::new(inst))},
+                0b000 => {Ok(Box::new(SB::new(inst)))},
+                0b001 => {Ok(Box::new(SH::new(inst)))},
+                0b010 => {Ok(Box::new(SW::new(inst)))},
                 // RV64I
-                0b011 => {pack_ok(SD::new(inst))},
+                0b011 => {Ok(Box::new(SD::new(inst)))},
                 _ => Err(VmExit::InvalidOpcode(i)),
             }
 
@@ -116,19 +112,19 @@ pub fn parse_instruction(i: u32) -> Result<Box<dyn Instruction>, VmExit> {
         0b0010011 => {
             let inst = Itype::from(i);
             match inst.funct3 {
-                0b000 => {pack_ok(ADDI::new(inst))},
-                0b010 => {pack_ok(SLTI::new(inst))},
-                0b011 => {pack_ok(SLTIU::new(inst))},
-                0b100 => {pack_ok(XORI::new(inst))},
-                0b110 => {pack_ok(ORI::new(inst))},
-                0b111 => {pack_ok(ANDI::new(inst))},
+                0b000 => {Ok(Box::new(ADDI::new(inst)))},
+                0b010 => {Ok(Box::new(SLTI::new(inst)))},
+                0b011 => {Ok(Box::new(SLTIU::new(inst)))},
+                0b100 => {Ok(Box::new(XORI::new(inst)))},
+                0b110 => {Ok(Box::new(ORI::new(inst)))},
+                0b111 => {Ok(Box::new(ANDI::new(inst)))},
                 // RV64I
-                0b001 => {pack_ok(SLLI::new(ItypeShift::from(i)))},
+                0b001 => {Ok(Box::new(SLLI::new(ItypeShift::from(i))))},
                 0b101 => {
                     let mode = i >> 26;
                     match mode {
-                        0b000000 => {pack_ok(SRLI::new(ItypeShift::from(i)))}
-                        0b010000 => {pack_ok(SRAI::new(ItypeShift::from(i)))}
+                        0b000000 => {Ok(Box::new(SRLI::new(ItypeShift::from(i))))}
+                        0b010000 => {Ok(Box::new(SRAI::new(ItypeShift::from(i))))}
                         _ => Err(VmExit::InvalidOpcode(i)),
                     }
                 },
@@ -140,16 +136,16 @@ pub fn parse_instruction(i: u32) -> Result<Box<dyn Instruction>, VmExit> {
             let inst = ItypeOp::from(i);
             let mode = i >> 25;
             match (inst.funct3, mode) {
-                (0b000,  0b0000000) => {pack_ok(ADD::new(inst))},
-                (0b000,  0b0100000) => {pack_ok(SUB::new(inst))},
-                (0b001,  0b0000000) => {pack_ok(SLL::new(inst))},
-                (0b010,  0b0000000) => {pack_ok(SLT::new(inst))},
-                (0b011,  0b0000000) => {pack_ok(SLTU::new(inst))},
-                (0b100,  0b0000000) => {pack_ok(XOR::new(inst))},
-                (0b101,  0b0000000) => {pack_ok(SRL::new(inst))},
-                (0b101,  0b0100000) => {pack_ok(SRA::new(inst))},
-                (0b110,  0b0000000) => {pack_ok(OR::new(inst))},
-                (0b111,  0b0000000) => {pack_ok(AND::new(inst))},
+                (0b000,  0b0000000) => {Ok(Box::new(ADD::new(inst)))},
+                (0b000,  0b0100000) => {Ok(Box::new(SUB::new(inst)))},
+                (0b001,  0b0000000) => {Ok(Box::new(SLL::new(inst)))},
+                (0b010,  0b0000000) => {Ok(Box::new(SLT::new(inst)))},
+                (0b011,  0b0000000) => {Ok(Box::new(SLTU::new(inst)))},
+                (0b100,  0b0000000) => {Ok(Box::new(XOR::new(inst)))},
+                (0b101,  0b0000000) => {Ok(Box::new(SRL::new(inst)))},
+                (0b101,  0b0100000) => {Ok(Box::new(SRA::new(inst)))},
+                (0b110,  0b0000000) => {Ok(Box::new(OR::new(inst)))},
+                (0b111,  0b0000000) => {Ok(Box::new(AND::new(inst)))},
                 _ => Err(VmExit::InvalidOpcode(i)),
             }
         },
@@ -159,8 +155,8 @@ pub fn parse_instruction(i: u32) -> Result<Box<dyn Instruction>, VmExit> {
                 0b000 => {
                     let mode = i >> 20;
                     match mode {
-                        0b000000000000 => {pack_ok(ECALL::new(Ntype::from(i)))},
-                        0b000000000001 => {pack_ok(EBREAK::new(Ntype::from(i)))},
+                        0b000000000000 => {Ok(Box::new(ECALL::new(Ntype::from(i))))},
+                        0b000000000001 => {Ok(Box::new(EBREAK::new(Ntype::from(i))))},
                         _ => Err(VmExit::InvalidOpcode(i)),
                     }
                 },
@@ -172,12 +168,12 @@ pub fn parse_instruction(i: u32) -> Result<Box<dyn Instruction>, VmExit> {
             let inst = Itype::from(i);
             let mode = i >> 25;
             match inst.funct3 {
-                0b000 => {pack_ok(ADDIW::new(inst))},
-                0b001 => {pack_ok(SLLIW::new(ItypeShift::from(i)))},
+                0b000 => {Ok(Box::new(ADDIW::new(inst)))},
+                0b001 => {Ok(Box::new(SLLIW::new(ItypeShift::from(i))))},
                 0b101 => {
                     match mode {
-                        0b0000000 => {pack_ok(SRLIW::new(ItypeShift::from(i)))},
-                        0b0100000 => {pack_ok(SRAIW::new(ItypeShift::from(i)))},
+                        0b0000000 => {Ok(Box::new(SRLIW::new(ItypeShift::from(i))))},
+                        0b0100000 => {Ok(Box::new(SRAIW::new(ItypeShift::from(i))))},
                         _ => Err(VmExit::InvalidOpcode(i)),
                     }
                 },
@@ -188,11 +184,11 @@ pub fn parse_instruction(i: u32) -> Result<Box<dyn Instruction>, VmExit> {
             let inst = ItypeOp::from(i);
             let mode = i >> 25;
             match (inst.funct3, mode) {
-                (0b000,  0b0000000) => {pack_ok(ADDW::new(inst))},
-                (0b000,  0b0100000) => {pack_ok(SUBW::new(inst))},
-                (0b001,  0b0000000) => {pack_ok(SLLW::new(inst))},
-                (0b101,  0b0000000) => {pack_ok(SRLW::new(inst))},
-                (0b101,  0b0100000) => {pack_ok(SRAW::new(inst))},
+                (0b000,  0b0000000) => {Ok(Box::new(ADDW::new(inst)))},
+                (0b000,  0b0100000) => {Ok(Box::new(SUBW::new(inst)))},
+                (0b001,  0b0000000) => {Ok(Box::new(SLLW::new(inst)))},
+                (0b101,  0b0000000) => {Ok(Box::new(SRLW::new(inst)))},
+                (0b101,  0b0100000) => {Ok(Box::new(SRAW::new(inst)))},
                 _ => Err(VmExit::InvalidOpcode(i)),
             }
         }
