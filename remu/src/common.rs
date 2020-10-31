@@ -29,17 +29,12 @@ impl Machine {
         print!("|");
         for i in 1..33 {
             let r = Register::from(i);
-            let r = format!("{:?}", r);
-            print!(" {:>3} |", r);
-        }
+            print!(" {:?}: {:} |", r, self.registers[i as usize] as i64);
 
-        println!("");
-
-        print!("|");
-        for i in 1..33 {
-            print!("{:5x}|", self.registers[i]);
+            if i % 16 == 0 {
+                println!("");
+            }
         }
-        println!("");
     }
 
     pub fn get_r(&self, reg : Register) -> u64 {
