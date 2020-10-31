@@ -81,7 +81,7 @@ impl<T: Disassemble + Emulate> Instruction for T {}
 
 #[macro_export]
 macro_rules! instr {
-    ($n:ident, $t:ident, $mn:expr, $i:ident, $m:ident, $ev:expr) => {
+    ($n:ident, $t:ident, $i:ident, $m:ident, $ev:expr) => {
         struct $n {
             i: $t,
         }
@@ -94,7 +94,9 @@ macro_rules! instr {
 
         impl Disassemble for $n {
             fn disassemble(&self) -> String {
-                format!("{:} {:}", $mn, self.i.disassemble())
+                let t = std::any::type_name::<$n>();
+                let t = t.split("::").last().unwrap().to_lowercase();
+                format!("{:} {:}", t, self.i.disassemble())
             }
         }
 
