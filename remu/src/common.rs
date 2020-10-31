@@ -2,6 +2,12 @@ use crate::mmu::{Mmu, VirtAddr};
 use crate::riscv::instruction::parse_instruction;
 use crate::riscv::register::Register;
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum VmExit {
+    InvalidOpcode(u32),
+    Syscall,
+}
+
 pub struct Machine {
     pub mmu : Mmu,
     registers: [u64; 33],
@@ -31,13 +37,17 @@ impl Machine {
         VirtAddr(self.get_r(Register::Pc) as usize)
     }
 
-    pub fn step(&mut self) {
+    pub fn step(&mut self) -> Result<(), VmExit> {
         let pc = self.get_pc();
         let inst_u32 = self.mmu.read_u32(pc);
 
-        let inst = parse_instruction(inst_u32);
+        let inst = parse_instruction(inst_u32)?;
         println!("\t{:x}: {:08x}\t\t{:}", pc.0, inst_u32, inst.disassemble());
+
+        inst.emulate(self, )?;
+
         self.set_r(Register::Pc, (pc.0 + 4) as u64);
+        Ok(())
     }
 }
 
@@ -46,8 +56,37 @@ pub trait Disassemble {
 }
 
 pub trait Emulate {
-    fn emulate(&self, m : &mut Machine);
+    fn emulate(&self, m : &mut Machine) -> Result<(), VmExit>;
 }
 
 pub trait Instruction : Disassemble + Emulate {}
 impl<T: Disassemble + Emulate> Instruction for T {}
+
+
+#[macro_export]
+macro_rules! instr {
+    ($n:ident, $t:ident, $mn:expr, $ev:expr) => {
+        struct $n {
+            i: $t,
+        }
+
+        impl $n {
+            fn new(inst: $t) -> Self {
+                Self {i: inst}
+            }
+        }
+
+        impl Disassemble for $n {
+            fn disassemble(&self) -> String {
+                format!("{:} {:}", $mn, self.i.disassemble())
+            }
+        }
+
+        impl Emulate for $n {
+            fn emulate(&self, m : &mut Machine) -> Result<(), VmExit> {
+                $ev(&self.i, m)
+            }
+        }
+
+    };
+}

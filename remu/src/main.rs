@@ -1,4 +1,5 @@
 mod mmu;
+
 mod common;
 mod riscv;
 
@@ -23,7 +24,9 @@ fn main() {
     mmu.load_elf(&path);
 
     let mut machine = Machine::new(mmu);
-    loop {
-        machine.step();
+    // loop {
+
+    for _ in 0..10 {
+        machine.step().unwrap();
     }
 }
