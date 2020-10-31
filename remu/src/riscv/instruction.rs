@@ -22,124 +22,64 @@ macro_rules! ins {
     };
 }
 
-
-// imm[31:12] rd 0110111 LUI
-// imm[31:12] rd 0010111 AUIPC
-ins!(AUIPC, Utype, "auipc");
-ins!(LUI,   Utype, "lui");
-
-// imm[20|10:1|11|19:12] rd 1101111 JAL
-ins!(JAL, Jtype, "jal");
-
-// imm[11:0] rs1 000 rd 1100111 JALR
-ins!(JALR, Itype, "jalr");
-
-// imm[12|10:5] rs2 rs1 000 imm[4:1|11] 1100011 BEQ
-// imm[12|10:5] rs2 rs1 001 imm[4:1|11] 1100011 BNE
-// imm[12|10:5] rs2 rs1 100 imm[4:1|11] 1100011 BLT
-// imm[12|10:5] rs2 rs1 101 imm[4:1|11] 1100011 BGE
-// imm[12|10:5] rs2 rs1 110 imm[4:1|11] 1100011 BLTU
-// imm[12|10:5] rs2 rs1 111 imm[4:1|11] 1100011 BGEU
-ins!(BEQ,  Btype, "beq");
-ins!(BNE,  Btype, "bne");
-ins!(BLT,  Btype, "blt");
-ins!(BGE,  Btype, "bge");
-ins!(BLTU, Btype, "bltu");
-ins!(BGEU, Btype, "bgeu");
-
-// imm[11:0] rs1 000 rd 0000011 LB
-// imm[11:0] rs1 001 rd 0000011 LH
-// imm[11:0] rs1 010 rd 0000011 LW
-// imm[11:0] rs1 100 rd 0000011 LBU
-// imm[11:0] rs1 101 rd 0000011 LHU
-ins!(LB,  Itype, "lb");
-ins!(LH,  Itype, "lh");
-ins!(LW,  Itype, "lw");
-ins!(LBU, Itype, "lbu");
-ins!(LHU, Itype, "lhu");
-
-// imm[11:5] rs2 rs1 000 imm[4:0] 0100011 SB
-// imm[11:5] rs2 rs1 001 imm[4:0] 0100011 SH
-// imm[11:5] rs2 rs1 010 imm[4:0] 0100011 SW
-ins!(SB, Stype, "sb");
-ins!(SH, Stype, "sh");
-ins!(SW, Stype, "sw");
-
-// imm[11:0] rs1 000 rd 0010011 ADDI
-// imm[11:0] rs1 010 rd 0010011 SLTI
-// imm[11:0] rs1 011 rd 0010011 SLTIU
-// imm[11:0] rs1 100 rd 0010011 XORI
-// imm[11:0] rs1 110 rd 0010011 ORI
-// imm[11:0] rs1 111 rd 0010011 ANDI
-ins!(ADDI,  Itype, "addi");
-ins!(SLTI,  Itype, "slti");
-ins!(SLTIU, Itype, "sltiu");
-ins!(XORI,  Itype, "xori");
-ins!(ORI,   Itype, "ori");
-ins!(ANDI,  Itype, "andi");
-
-// 0000000 shamt rs1 001 rd 0010011 SLLI
-// 0000000 shamt rs1 101 rd 0010011 SRLI
-// 0100000 shamt rs1 101 rd 0010011 SRAI
-ins!(SLLI, ItypeShift, "slli");
-ins!(SRLI, ItypeShift, "srli");
-ins!(SRAI, ItypeShift, "srai");
-
-// 0000000 rs2   rs1 000 rd 0110011 ADD
-// 0100000 rs2   rs1 000 rd 0110011 SUB
-// 0000000 rs2   rs1 001 rd 0110011 SLL
-// 0000000 rs2   rs1 010 rd 0110011 SLT
-// 0000000 rs2   rs1 011 rd 0110011 SLTU
-// 0000000 rs2   rs1 100 rd 0110011 XOR
-// 0000000 rs2   rs1 101 rd 0110011 SRL
-// 0100000 rs2   rs1 101 rd 0110011 SRA
-// 0000000 rs2   rs1 110 rd 0110011 OR
-// 0000000 rs2   rs1 111 rd 0110011 AND
-ins!(ADD,  ItypeOp, "add");
-ins!(SUB,  ItypeOp, "sub");
-ins!(SLL,  ItypeOp, "sll");
-ins!(SLT,  ItypeOp, "slt");
-ins!(SLTU, ItypeOp, "sltu");
-ins!(XOR,  ItypeOp, "xor");
-ins!(SRL,  ItypeOp, "srl");
-ins!(SRA,  ItypeOp, "sra");
-ins!(OR,   ItypeOp, "or");
-ins!(AND,  ItypeOp, "and");
-
-// 000000000000 00000 000 00000 1110011 ECALL
-// 000000000001 00000 000 00000 1110011 EBREAK
+ins!(LUI,    Utype, "lui");
+ins!(AUIPC,  Utype, "auipc");
+ins!(JAL,    Jtype, "jal");
+ins!(JALR,   Itype, "jalr");
+ins!(BEQ,    Btype, "beq");
+ins!(BNE,    Btype, "bne");
+ins!(BLT,    Btype, "blt");
+ins!(BGE,    Btype, "bge");
+ins!(BLTU,   Btype, "bltu");
+ins!(BGEU,   Btype, "bgeu");
+ins!(LB,     Itype, "lb");
+ins!(LH,     Itype, "lh");
+ins!(LW,     Itype, "lw");
+ins!(LBU,    Itype, "lbu");
+ins!(LHU,    Itype, "lhu");
+ins!(SB,     Stype, "sb");
+ins!(SH,     Stype, "sh");
+ins!(SW,     Stype, "sw");
+ins!(ADDI,   Itype, "addi");
+ins!(SLTI,   Itype, "slti");
+ins!(SLTIU,  Itype, "sltiu");
+ins!(XORI,   Itype, "xori");
+ins!(ORI,    Itype, "ori");
+ins!(ANDI,   Itype, "andi");
+ins!(SLLI,   ItypeShift, "slli");
+ins!(SRLI,   ItypeShift, "srli");
+ins!(SRAI,   ItypeShift, "srai");
+ins!(ADD,    ItypeOp, "add");
+ins!(SUB,    ItypeOp, "sub");
+ins!(SLL,    ItypeOp, "sll");
+ins!(SLT,    ItypeOp, "slt");
+ins!(SLTU,   ItypeOp, "sltu");
+ins!(XOR,    ItypeOp, "xor");
+ins!(SRL,    ItypeOp, "srl");
+ins!(SRA,    ItypeOp, "sra");
+ins!(OR,     ItypeOp, "or");
+ins!(AND,    ItypeOp, "and");
+// TODO: FENCE
 ins!(ECALL,  Ntype, "ecall");
 ins!(EBREAK, Ntype, "ebreak");
+// TODO: CSRR
 
 // RV64I
-// imm[11:0] rs1 110 rd 0000011 LWU
-// imm[11:0] rs1 011 rd 0000011 LD
-ins!(LWU, Itype, "lwu");
-ins!(LD,  Itype, "ld");
-
-// imm[11:5] rs2 rs1 011 imm[4:0] 0100011 SD
-ins!(SD, Stype, "sd");
-
-// imm[11:0] rs1 000 rd 0011011 ADDIW
+ins!(LWU,   Itype, "lwu");
+ins!(LD,    Itype, "ld");
+ins!(SD,    Stype, "sd");
+// TODO: SSLI
+// TODO: SRLI
+// TODO: SRAI
 ins!(ADDIW, Itype, "addiw");
-
-// 0000000 shamt rs1 001 rd 0011011 SLLIW
-// 0000000 shamt rs1 101 rd 0011011 SRLIW
-// 0100000 shamt rs1 101 rd 0011011 SRAIW
 ins!(SLLIW, ItypeShift, "slliw");
 ins!(SRLIW, ItypeShift, "srliw");
 ins!(SRAIW, ItypeShift, "sraiw");
-
-// 0000000 rs2 rs1 000 rd 0111011 ADDW
-// 0100000 rs2 rs1 000 rd 0111011 SUBW
-// 0000000 rs2 rs1 001 rd 0111011 SLLW
-// 0000000 rs2 rs1 101 rd 0111011 SRLW
-// 0100000 rs2 rs1 101 rd 0111011 SRAW
-ins!(ADDW, ItypeOp, "addw");
-ins!(SUBW, ItypeOp, "subw");
-ins!(SLLW, ItypeOp, "sllw");
-ins!(SRLW, ItypeOp, "srlw");
-ins!(SRAW, ItypeOp, "sraw");
+ins!(ADDW,  ItypeOp, "addw");
+ins!(SUBW,  ItypeOp, "subw");
+ins!(SLLW,  ItypeOp, "sllw");
+ins!(SRLW,  ItypeOp, "srlw");
+ins!(SRAW,  ItypeOp, "sraw");
 
 
 pub fn parse_instruction(i: u32) -> Box<dyn Instruction> {
