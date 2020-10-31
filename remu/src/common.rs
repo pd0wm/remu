@@ -5,6 +5,7 @@ use crate::riscv::register::Register;
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum VmExit {
     InvalidOpcode(u32),
+    NotImpl,
     Syscall,
 }
 
@@ -24,13 +25,31 @@ impl Machine {
         r
     }
 
+    pub fn print_state(&self){
+        print!("|");
+        for i in 1..33 {
+            let r = Register::from(i);
+            let r = format!("{:?}", r);
+            print!(" {:>3} |", r);
+        }
+
+        println!("");
+
+        print!("|");
+        for i in 1..33 {
+            print!("{:5x}|", self.registers[i]);
+        }
+        println!("");
+    }
+
     pub fn get_r(&self, reg : Register) -> u64 {
         self.registers[reg as usize]
     }
 
-    pub fn set_r(&mut self, reg : Register, value : u64) {
+    pub fn set_r(&mut self, reg : Register, value : u64) -> Result<(), VmExit> {
         assert!(reg != Register::Zero);
         self.registers[reg as usize] = value;
+        Ok(())
     }
 
     pub fn get_pc(&self) -> VirtAddr {
@@ -44,9 +63,10 @@ impl Machine {
         let inst = parse_instruction(inst_u32)?;
         println!("\t{:x}: {:08x}\t\t{:}", pc.0, inst_u32, inst.disassemble());
 
-        inst.emulate(self, )?;
+        inst.emulate(self)?;
 
-        self.set_r(Register::Pc, (pc.0 + 4) as u64);
+        self.set_r(Register::Pc, self.get_r(Register::Pc).wrapping_add(4))?;
+        self.print_state();
         Ok(())
     }
 }

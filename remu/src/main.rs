@@ -24,9 +24,9 @@ fn main() {
     mmu.load_elf(&path);
 
     let mut machine = Machine::new(mmu);
-    // loop {
+    machine.print_state();
 
-    for _ in 0..10 {
+    loop {
         machine.step().unwrap();
     }
 }
