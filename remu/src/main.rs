@@ -1,5 +1,6 @@
 mod mmu;
 mod riscv;
+mod common;
 
 use std::path::PathBuf;
 use clap::{Arg, App};

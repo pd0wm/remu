@@ -1,6 +1,7 @@
 // https://github.com/gamozolabs/fuzz_with_emus/blob/master/src/emulator.rs
+
 use super::register::Register;
-use super::instruction::Disassemble;
+use crate::common::Disassemble;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Rtype {
@@ -14,7 +15,7 @@ pub struct Rtype {
 impl From<u32> for Rtype {
     fn from(inst: u32) -> Self {
         Rtype {
-            funct7: (inst >> 25) & 0b1111111,
+            funct7: inst >> 25,
             rs2:    Register::from((inst >> 20) & 0b11111),
             rs1:    Register::from((inst >> 15) & 0b11111),
             funct3: (inst >> 12) & 0b111,
@@ -33,7 +34,7 @@ pub struct Stype {
 
 impl From<u32> for Stype {
     fn from(inst: u32) -> Self {
-        let imm115 = (inst >> 25) & 0b1111111;
+        let imm115 = inst >> 25;
         let imm40  = (inst >>  7) & 0b11111;
 
         let imm = (imm115 << 5) | imm40;
@@ -45,6 +46,12 @@ impl From<u32> for Stype {
             rs1:    Register::from((inst >> 15) & 0b11111),
             funct3: (inst >> 12) & 0b111,
         }
+    }
+}
+
+impl Disassemble for Stype {
+    fn disassemble(&self) -> String {
+        format!("{:?},{:?},{:}", self.rs1, self.rs2, self.imm)
     }
 }
 
@@ -69,6 +76,12 @@ impl From<u32> for Jtype {
             imm: imm,
             rd:  Register::from((inst >> 7) & 0b11111),
         }
+    }
+}
+
+impl Disassemble for Jtype {
+    fn disassemble(&self) -> String {
+        format!("{:?},{:}", self.rd, self.imm)
     }
 }
 
@@ -99,6 +112,12 @@ impl From<u32> for Btype {
     }
 }
 
+impl Disassemble for Btype {
+    fn disassemble(&self) -> String {
+        format!("{:?},{:?},{:}", self.rs1, self.rs2, self.imm)
+    }
+}
+
 #[derive(Debug, Copy, Clone)]
 pub struct Itype {
     pub imm:    i32,
@@ -126,6 +145,56 @@ impl Disassemble for Itype {
 }
 
 #[derive(Debug, Copy, Clone)]
+pub struct ItypeShift {
+    pub shamt:    u32,
+    pub rs1:    Register,
+    pub funct3: u32,
+    pub rd:     Register,
+}
+
+impl From<u32> for ItypeShift {
+    fn from(inst: u32) -> Self {
+        ItypeShift {
+            shamt: (inst >> 20) & 0b111111,
+            rs1:    Register::from((inst >> 15) & 0b11111),
+            funct3: (inst >> 12) & 0b111,
+            rd:     Register::from((inst >>  7) & 0b11111),
+        }
+    }
+}
+
+impl Disassemble for ItypeShift {
+    fn disassemble(&self) -> String {
+        format!("{:?},{:?},{:}", self.rd, self.rs1, self.shamt)
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub struct ItypeOp {
+    pub rs2:    Register,
+    pub rs1:    Register,
+    pub funct3: u32,
+    pub rd:     Register,
+}
+
+impl From<u32> for ItypeOp {
+    fn from(inst: u32) -> Self {
+        ItypeOp {
+            rs2:    Register::from((inst >> 20) & 0b11111),
+            rs1:    Register::from((inst >> 15) & 0b11111),
+            funct3: (inst >> 12) & 0b111,
+            rd:     Register::from((inst >>  7) & 0b11111),
+        }
+    }
+}
+
+impl Disassemble for ItypeOp {
+    fn disassemble(&self) -> String {
+        format!("{:?},{:?},{:?}", self.rd, self.rs1, self.rs2)
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
 pub struct Utype {
     pub imm: i32,
     pub rd:  Register,
@@ -143,5 +212,22 @@ impl From<u32> for Utype {
 impl Disassemble for Utype {
     fn disassemble(&self) -> String {
         format!("{:?},{:#02x?}", self.rd, self.imm)
+    }
+}
+
+
+#[derive(Debug, Copy, Clone)]
+pub struct Ntype {
+}
+
+impl From<u32> for Ntype {
+    fn from(inst: u32) -> Self {
+        Ntype {}
+    }
+}
+
+impl Disassemble for Ntype {
+    fn disassemble(&self) -> String {
+        "".to_string()
     }
 }
