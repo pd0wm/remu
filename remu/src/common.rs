@@ -81,7 +81,7 @@ impl<T: Disassemble + Emulate> Instruction for T {}
 
 #[macro_export]
 macro_rules! instr {
-    ($n:ident, $t:ident, $mn:expr, $ev:expr) => {
+    ($n:ident, $t:ident, $mn:expr, $i:ident, $m:ident, $ev:expr) => {
         struct $n {
             i: $t,
         }
@@ -99,8 +99,9 @@ macro_rules! instr {
         }
 
         impl Emulate for $n {
-            fn emulate(&self, m : &mut Machine) -> Result<(), VmExit> {
-                $ev(&self.i, m)
+            fn emulate(&self, $m : &mut Machine) -> Result<(), VmExit> {
+                let $i = self.i;
+                $ev
             }
         }
 

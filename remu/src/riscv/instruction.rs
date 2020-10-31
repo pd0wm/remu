@@ -4,96 +4,83 @@ use crate::common::{Emulate, Disassemble, Instruction, Machine, VmExit};
 use crate::instr;
 
 
-instr!(LUI,    Utype,      "lui",    |_i: &Utype, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(AUIPC,  Utype,      "auipc",  |i: &Utype, m: &mut Machine| -> Result<(), VmExit> {
-    m.set_r(i.rd, (i.imm as i64 as u64).wrapping_add(m.get_r(Pc)))});
-instr!(JAL,    Jtype,      "jal",    |i: &Jtype, m: &mut Machine| -> Result<(), VmExit> {
+instr!(LUI,    Utype,      "lui",   _i, _m, Err(VmExit::NotImpl));
+instr!(AUIPC,  Utype,      "auipc", i, m, m.set_r(i.rd, (i.imm as i64 as u64).wrapping_add(m.get_r(Pc))));
+instr!(JAL,    Jtype,      "jal",   i, m, {
     let pc = m.get_r(Pc);
     m.set_r(i.rd, pc.wrapping_add(4))?;
     m.set_r(Pc, pc.wrapping_add(i.imm as i64 as u64).wrapping_sub(4))});
-instr!(JALR,   Itype,      "jalr",   |i: &Itype, m: &mut Machine| -> Result<(), VmExit> {
+instr!(JALR,   Itype,      "jalr",  i, m, {
     let pc = m.get_r(Pc);
     let target = m.get_r(i.rs1).wrapping_add(i.imm as i64 as u64).wrapping_sub(4);
     m.set_r(i.rd, pc.wrapping_add(4))?;
     m.set_r(Pc, target)});
-instr!(BEQ,    Btype,      "beq",    |i: &Btype, m: &mut Machine| -> Result<(), VmExit> {
+instr!(BEQ,    Btype,      "beq",   i, m, {
     let t = m.get_r(Pc).wrapping_add(i.imm as i64 as u64).wrapping_sub(4);
-    if m.get_r(i.rs1) == m.get_r(i.rs1) { m.set_r(Pc, t) } else { Ok(())}
-});
-instr!(BNE,    Btype,      "bne",    |i: &Btype, m: &mut Machine| -> Result<(), VmExit> {
+    if m.get_r(i.rs1) == m.get_r(i.rs1) { m.set_r(Pc, t) } else { Ok(())}});
+instr!(BNE,    Btype,      "bne",    i, m, {
     let t = m.get_r(Pc).wrapping_add(i.imm as i64 as u64).wrapping_sub(4);
-    if m.get_r(i.rs1) != m.get_r(i.rs1) { m.set_r(Pc, t) } else { Ok(())}
-});
-instr!(BLT,    Btype,      "blt",    |i: &Btype, m: &mut Machine| -> Result<(), VmExit> {
+    if m.get_r(i.rs1) != m.get_r(i.rs1) { m.set_r(Pc, t) } else { Ok(())}});
+instr!(BLT,    Btype,      "blt",    i, m, {
     let t = m.get_r(Pc).wrapping_add(i.imm as i64 as u64).wrapping_sub(4);
-    if (m.get_r(i.rs1) as i64) < (m.get_r(i.rs1) as i64) { m.set_r(Pc, t) } else { Ok(())}
-});
-instr!(BGE,    Btype,      "bge",    |i: &Btype, m: &mut Machine| -> Result<(), VmExit> {
+    if (m.get_r(i.rs1) as i64) < (m.get_r(i.rs1) as i64) { m.set_r(Pc, t) } else { Ok(())}});
+instr!(BGE,    Btype,      "bge",    i, m, {
     let t = m.get_r(Pc).wrapping_add(i.imm as i64 as u64).wrapping_sub(4);
-    if (m.get_r(i.rs1) as i64) >= (m.get_r(i.rs1) as i64) { m.set_r(Pc, t) } else { Ok(())}
-});
-instr!(BLTU,   Btype,      "bltu",   |i: &Btype, m: &mut Machine| -> Result<(), VmExit> {
+    if (m.get_r(i.rs1) as i64) >= (m.get_r(i.rs1) as i64) { m.set_r(Pc, t) } else { Ok(())}});
+instr!(BLTU,   Btype,      "bltu",   i, m, {
     let t = m.get_r(Pc).wrapping_add(i.imm as i64 as u64).wrapping_sub(4);
-    if m.get_r(i.rs1) < m.get_r(i.rs1) { m.set_r(Pc, t) } else { Ok(())}
-});
-instr!(BGEU,   Btype,      "bgeu",   |i: &Btype, m: &mut Machine| -> Result<(), VmExit> {
+    if m.get_r(i.rs1) < m.get_r(i.rs1) { m.set_r(Pc, t) } else { Ok(())}});
+instr!(BGEU,   Btype,      "bgeu",   i, m, {
     let t = m.get_r(Pc).wrapping_add(i.imm as i64 as u64).wrapping_sub(4);
-    if m.get_r(i.rs1) >= m.get_r(i.rs1) { m.set_r(Pc, t) } else { Ok(())}
-});
-instr!(LB,     Itype,      "lb",     |_i: &Itype, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(LH,     Itype,      "lh",     |_i: &Itype, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(LW,     Itype,      "lw",     |_i: &Itype, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(LBU,    Itype,      "lbu",    |_i: &Itype, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(LHU,    Itype,      "lhu",    |_i: &Itype, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(SB,     Stype,      "sb",     |_i: &Stype, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(SH,     Stype,      "sh",     |_i: &Stype, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(SW,     Stype,      "sw",     |_i: &Stype, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(ADDI,   Itype,      "addi",   |i: &Itype, m: &mut Machine| -> Result<(), VmExit> {
-    m.set_r(i.rd, m.get_r(i.rs1).wrapping_add(i.imm as i64 as u64))});
-instr!(SLTI,   Itype,      "slti",   |_i: &Itype, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(SLTIU,  Itype,      "sltiu",  |_i: &Itype, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(XORI,   Itype,      "xori",   |_i: &Itype, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(ORI,    Itype,      "ori",    |_i: &Itype, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(ANDI,   Itype,      "andi",   |_i: &Itype, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(SLLI,   ItypeShift, "slli",   |i: &ItypeShift, m: &mut Machine| -> Result<(), VmExit> {
-    m.set_r(i.rd, m.get_r(i.rs1) << i.shamt)});
-instr!(SRLI,   ItypeShift, "srli",   |i: &ItypeShift, m: &mut Machine| -> Result<(), VmExit> {
-    m.set_r(i.rd, m.get_r(i.rs1) >> i.shamt)});
-instr!(SRAI,   ItypeShift, "srai",   |i: &ItypeShift, m: &mut Machine| -> Result<(), VmExit> {
-    m.set_r(i.rd, ((m.get_r(i.rs1) as i64) >> i.shamt) as u64)});
-instr!(ADD,    ItypeOp,    "add",    |i: &ItypeOp, m: &mut Machine| -> Result<(), VmExit> {
-    m.set_r(i.rd, m.get_r(i.rs1).wrapping_add(m.get_r(i.rs2)))});
-instr!(SUB,    ItypeOp,    "sub",    |i: &ItypeOp, m: &mut Machine| -> Result<(), VmExit> {
-m.set_r(i.rd, m.get_r(i.rs1).wrapping_sub(m.get_r(i.rs2)))});
-instr!(SLL,    ItypeOp,    "sll",    |_i: &ItypeOp, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(SLT,    ItypeOp,    "slt",    |_i: &ItypeOp, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(SLTU,   ItypeOp,    "sltu",   |_i: &ItypeOp, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(XOR,    ItypeOp,    "xor",    |_i: &ItypeOp, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(SRL,    ItypeOp,    "srl",    |_i: &ItypeOp, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(SRA,    ItypeOp,    "sra",    |_i: &ItypeOp, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(OR,     ItypeOp,    "or",     |_i: &ItypeOp, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(AND,    ItypeOp,    "and",    |_i: &ItypeOp, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
+    if m.get_r(i.rs1) >= m.get_r(i.rs1) { m.set_r(Pc, t) } else { Ok(())}});
+instr!(LB,     Itype,      "lb",     _i, _m, Err(VmExit::NotImpl));
+instr!(LH,     Itype,      "lh",     _i, _m, Err(VmExit::NotImpl));
+instr!(LW,     Itype,      "lw",     _i, _m, Err(VmExit::NotImpl));
+instr!(LBU,    Itype,      "lbu",    _i, _m, Err(VmExit::NotImpl));
+instr!(LHU,    Itype,      "lhu",    _i, _m, Err(VmExit::NotImpl));
+instr!(SB,     Stype,      "sb",     _i, _m, Err(VmExit::NotImpl));
+instr!(SH,     Stype,      "sh",     _i, _m, Err(VmExit::NotImpl));
+instr!(SW,     Stype,      "sw",     _i, _m, Err(VmExit::NotImpl));
+instr!(ADDI,   Itype,      "addi",   i, m, m.set_r(i.rd, m.get_r(i.rs1).wrapping_add(i.imm as i64 as u64)));
+instr!(SLTI,   Itype,      "slti",   _i, _m, Err(VmExit::NotImpl));
+instr!(SLTIU,  Itype,      "sltiu",  _i, _m, Err(VmExit::NotImpl));
+instr!(XORI,   Itype,      "xori",   _i, _m, Err(VmExit::NotImpl));
+instr!(ORI,    Itype,      "ori",    _i, _m, Err(VmExit::NotImpl));
+instr!(ANDI,   Itype,      "andi",   _i, _m, Err(VmExit::NotImpl));
+instr!(SLLI,   ItypeShift, "slli",   i, m, m.set_r(i.rd, m.get_r(i.rs1) << i.shamt));
+instr!(SRLI,   ItypeShift, "srli",   i, m, m.set_r(i.rd, m.get_r(i.rs1) >> i.shamt));
+instr!(SRAI,   ItypeShift, "srai",   i, m, m.set_r(i.rd, ((m.get_r(i.rs1) as i64) >> i.shamt) as u64));
+instr!(ADD,    ItypeOp,    "add",    i, m, m.set_r(i.rd, m.get_r(i.rs1).wrapping_add(m.get_r(i.rs2))));
+instr!(SUB,    ItypeOp,    "sub",    i, m, m.set_r(i.rd, m.get_r(i.rs1).wrapping_sub(m.get_r(i.rs2))));
+instr!(SLL,    ItypeOp,    "sll",    _i, _m, Err(VmExit::NotImpl));
+instr!(SLT,    ItypeOp,    "slt",    _i, _m, Err(VmExit::NotImpl));
+instr!(SLTU,   ItypeOp,    "sltu",   _i, _m, Err(VmExit::NotImpl));
+instr!(XOR,    ItypeOp,    "xor",    _i, _m, Err(VmExit::NotImpl));
+instr!(SRL,    ItypeOp,    "srl",    _i, _m, Err(VmExit::NotImpl));
+instr!(SRA,    ItypeOp,    "sra",    _i, _m, Err(VmExit::NotImpl));
+instr!(OR,     ItypeOp,    "or",     _i, _m, Err(VmExit::NotImpl));
+instr!(AND,    ItypeOp,    "and",    _i, _m, Err(VmExit::NotImpl));
 // TODO: FENCE
-instr!(ECALL,  Ntype,      "ecall",  |_i: &Ntype, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::Syscall)});
-instr!(EBREAK, Ntype,      "ebreak", |_i: &Ntype, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
+instr!(ECALL,  Ntype,      "ecall",  _i, _m, Err(VmExit::Syscall));
+instr!(EBREAK, Ntype,      "ebreak", _i, _m, Err(VmExit::NotImpl));
 // TODO: CSRR
 
 // RV64I
-instr!(LWU,   Itype,       "lwu",    |_i: &Itype, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(LD,    Itype,       "ld",     |_i: &Itype, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(SD,    Stype,       "sd",     |_i: &Stype, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
+instr!(LWU,   Itype,       "lwu",    _i, _m, Err(VmExit::NotImpl));
+instr!(LD,    Itype,       "ld",     _i, _m, Err(VmExit::NotImpl));
+instr!(SD,    Stype,       "sd",     _i, _m, Err(VmExit::NotImpl));
 // TODO: SSLI
 // TODO: SRLI
 // TODO: SRAI
-instr!(ADDIW, Itype,       "addiw", |_i: &Itype, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(SLLIW, ItypeShift,  "slliw", |_i: &ItypeShift, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(SRLIW, ItypeShift,  "srliw", |_i: &ItypeShift, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(SRAIW, ItypeShift,  "sraiw", |_i: &ItypeShift, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(ADDW,  ItypeOp,     "addw",  |_i: &ItypeOp, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(SUBW,  ItypeOp,     "subw",  |_i: &ItypeOp, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(SLLW,  ItypeOp,     "sllw",  |_i: &ItypeOp, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(SRLW,  ItypeOp,     "srlw",  |_i: &ItypeOp, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
-instr!(SRAW,  ItypeOp,     "sraw",  |_i: &ItypeOp, _m: &mut Machine| -> Result<(), VmExit> {Err(VmExit::NotImpl)});
+instr!(ADDIW, Itype,       "addiw", _i, _m, Err(VmExit::NotImpl));
+instr!(SLLIW, ItypeShift,  "slliw", _i, _m, Err(VmExit::NotImpl));
+instr!(SRLIW, ItypeShift,  "srliw", _i, _m, Err(VmExit::NotImpl));
+instr!(SRAIW, ItypeShift,  "sraiw", _i, _m, Err(VmExit::NotImpl));
+instr!(ADDW,  ItypeOp,     "addw",  _i, _m, Err(VmExit::NotImpl));
+instr!(SUBW,  ItypeOp,     "subw",  _i, _m, Err(VmExit::NotImpl));
+instr!(SLLW,  ItypeOp,     "sllw",  _i, _m, Err(VmExit::NotImpl));
+instr!(SRLW,  ItypeOp,     "srlw",  _i, _m, Err(VmExit::NotImpl));
+instr!(SRAW,  ItypeOp,     "sraw",  _i, _m, Err(VmExit::NotImpl));
 
 
 pub fn parse_instruction(i: u32) -> Result<Box<dyn Instruction>, VmExit> {
