@@ -42,8 +42,9 @@ impl Machine {
     }
 
     pub fn set_r(&mut self, reg : Register, value : u64) -> Result<(), VmExit> {
-        assert!(reg != Register::Zero);
-        self.registers[reg as usize] = value;
+        if reg != Register::Zero {
+            self.registers[reg as usize] = value;
+        }
         Ok(())
     }
 
