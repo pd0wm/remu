@@ -1,85 +1,91 @@
 use super::instruction_types::{*};
-use crate::common::{Disassemble, Instruction};
+use crate::common::{Emulate, Disassemble, Instruction, Machine};
 
 macro_rules! ins {
-    ($n:ident, $t:ident, $mn:expr) => {
+    ($n:ident, $t:ident, $mn:expr, $ev:expr) => {
         struct $n {
-            inst: $t,
+            i: $t,
         }
 
         impl $n {
             fn new(inst: $t) -> Self {
-                Self {inst: inst}
+                Self {i: inst}
             }
         }
 
         impl Disassemble for $n {
             fn disassemble(&self) -> String {
-                format!("{:} {:}", $mn, self.inst.disassemble())
+                format!("{:} {:}", $mn, self.i.disassemble())
+            }
+        }
+
+        impl Emulate for $n {
+            fn emulate(&self, m : &mut Machine) {
+                $ev(&self.i, m)
             }
         }
 
     };
 }
 
-ins!(LUI,    Utype, "lui");
-ins!(AUIPC,  Utype, "auipc");
-ins!(JAL,    Jtype, "jal");
-ins!(JALR,   Itype, "jalr");
-ins!(BEQ,    Btype, "beq");
-ins!(BNE,    Btype, "bne");
-ins!(BLT,    Btype, "blt");
-ins!(BGE,    Btype, "bge");
-ins!(BLTU,   Btype, "bltu");
-ins!(BGEU,   Btype, "bgeu");
-ins!(LB,     Itype, "lb");
-ins!(LH,     Itype, "lh");
-ins!(LW,     Itype, "lw");
-ins!(LBU,    Itype, "lbu");
-ins!(LHU,    Itype, "lhu");
-ins!(SB,     Stype, "sb");
-ins!(SH,     Stype, "sh");
-ins!(SW,     Stype, "sw");
-ins!(ADDI,   Itype, "addi");
-ins!(SLTI,   Itype, "slti");
-ins!(SLTIU,  Itype, "sltiu");
-ins!(XORI,   Itype, "xori");
-ins!(ORI,    Itype, "ori");
-ins!(ANDI,   Itype, "andi");
-ins!(SLLI,   ItypeShift, "slli");
-ins!(SRLI,   ItypeShift, "srli");
-ins!(SRAI,   ItypeShift, "srai");
-ins!(ADD,    ItypeOp, "add");
-ins!(SUB,    ItypeOp, "sub");
-ins!(SLL,    ItypeOp, "sll");
-ins!(SLT,    ItypeOp, "slt");
-ins!(SLTU,   ItypeOp, "sltu");
-ins!(XOR,    ItypeOp, "xor");
-ins!(SRL,    ItypeOp, "srl");
-ins!(SRA,    ItypeOp, "sra");
-ins!(OR,     ItypeOp, "or");
-ins!(AND,    ItypeOp, "and");
+ins!(LUI,    Utype,      "lui",    |_i: &Utype, _m: &mut Machine| {});
+ins!(AUIPC,  Utype,      "auipc",  |_i: &Utype, _m: &mut Machine| {});
+ins!(JAL,    Jtype,      "jal",    |_i: &Jtype, _m: &mut Machine| {});
+ins!(JALR,   Itype,      "jalr",   |_i: &Itype, _m: &mut Machine| {});
+ins!(BEQ,    Btype,      "beq",    |_i: &Btype, _m: &mut Machine| {});
+ins!(BNE,    Btype,      "bne",    |_i: &Btype, _m: &mut Machine| {});
+ins!(BLT,    Btype,      "blt",    |_i: &Btype, _m: &mut Machine| {});
+ins!(BGE,    Btype,      "bge",    |_i: &Btype, _m: &mut Machine| {});
+ins!(BLTU,   Btype,      "bltu",   |_i: &Btype, _m: &mut Machine| {});
+ins!(BGEU,   Btype,      "bgeu",   |_i: &Btype, _m: &mut Machine| {});
+ins!(LB,     Itype,      "lb",     |_i: &Itype, _m: &mut Machine| {});
+ins!(LH,     Itype,      "lh",     |_i: &Itype, _m: &mut Machine| {});
+ins!(LW,     Itype,      "lw",     |_i: &Itype, _m: &mut Machine| {});
+ins!(LBU,    Itype,      "lbu",    |_i: &Itype, _m: &mut Machine| {});
+ins!(LHU,    Itype,      "lhu",    |_i: &Itype, _m: &mut Machine| {});
+ins!(SB,     Stype,      "sb",     |_i: &Stype, _m: &mut Machine| {});
+ins!(SH,     Stype,      "sh",     |_i: &Stype, _m: &mut Machine| {});
+ins!(SW,     Stype,      "sw",     |_i: &Stype, _m: &mut Machine| {});
+ins!(ADDI,   Itype,      "addi",   |_i: &Itype, _m: &mut Machine| {});
+ins!(SLTI,   Itype,      "slti",   |_i: &Itype, _m: &mut Machine| {});
+ins!(SLTIU,  Itype,      "sltiu",  |_i: &Itype, _m: &mut Machine| {});
+ins!(XORI,   Itype,      "xori",   |_i: &Itype, _m: &mut Machine| {});
+ins!(ORI,    Itype,      "ori",    |_i: &Itype, _m: &mut Machine| {});
+ins!(ANDI,   Itype,      "andi",   |_i: &Itype, _m: &mut Machine| {});
+ins!(SLLI,   ItypeShift, "slli",   |_i: &ItypeShift, _m: &mut Machine| {});
+ins!(SRLI,   ItypeShift, "srli",   |_i: &ItypeShift, _m: &mut Machine| {});
+ins!(SRAI,   ItypeShift, "srai",   |_i: &ItypeShift, _m: &mut Machine| {});
+ins!(ADD,    ItypeOp,    "add",    |i: &ItypeOp, m: &mut Machine| {m.set_r(i.rd, 0);});
+ins!(SUB,    ItypeOp,    "sub",    |_i: &ItypeOp, _m: &mut Machine| {});
+ins!(SLL,    ItypeOp,    "sll",    |_i: &ItypeOp, _m: &mut Machine| {});
+ins!(SLT,    ItypeOp,    "slt",    |_i: &ItypeOp, _m: &mut Machine| {});
+ins!(SLTU,   ItypeOp,    "sltu",   |_i: &ItypeOp, _m: &mut Machine| {});
+ins!(XOR,    ItypeOp,    "xor",    |_i: &ItypeOp, _m: &mut Machine| {});
+ins!(SRL,    ItypeOp,    "srl",    |_i: &ItypeOp, _m: &mut Machine| {});
+ins!(SRA,    ItypeOp,    "sra",    |_i: &ItypeOp, _m: &mut Machine| {});
+ins!(OR,     ItypeOp,    "or",     |_i: &ItypeOp, _m: &mut Machine| {});
+ins!(AND,    ItypeOp,    "and",    |_i: &ItypeOp, _m: &mut Machine| {});
 // TODO: FENCE
-ins!(ECALL,  Ntype, "ecall");
-ins!(EBREAK, Ntype, "ebreak");
+ins!(ECALL,  Ntype,      "ecall",  |_i: &Ntype, _m: &mut Machine| {});
+ins!(EBREAK, Ntype,      "ebreak", |_i: &Ntype, _m: &mut Machine| {});
 // TODO: CSRR
 
 // RV64I
-ins!(LWU,   Itype, "lwu");
-ins!(LD,    Itype, "ld");
-ins!(SD,    Stype, "sd");
+ins!(LWU,   Itype,       "lwu",    |_i: &Itype, _m: &mut Machine| {});
+ins!(LD,    Itype,       "ld",     |_i: &Itype, _m: &mut Machine| {});
+ins!(SD,    Stype,       "sd",     |_i: &Stype, _m: &mut Machine| {});
 // TODO: SSLI
 // TODO: SRLI
 // TODO: SRAI
-ins!(ADDIW, Itype, "addiw");
-ins!(SLLIW, ItypeShift, "slliw");
-ins!(SRLIW, ItypeShift, "srliw");
-ins!(SRAIW, ItypeShift, "sraiw");
-ins!(ADDW,  ItypeOp, "addw");
-ins!(SUBW,  ItypeOp, "subw");
-ins!(SLLW,  ItypeOp, "sllw");
-ins!(SRLW,  ItypeOp, "srlw");
-ins!(SRAW,  ItypeOp, "sraw");
+ins!(ADDIW, Itype,       "addiw", |_i: &Itype, _m: &mut Machine| {});
+ins!(SLLIW, ItypeShift,  "slliw", |_i: &ItypeShift, _m: &mut Machine| {});
+ins!(SRLIW, ItypeShift,  "srliw", |_i: &ItypeShift, _m: &mut Machine| {});
+ins!(SRAIW, ItypeShift,  "sraiw", |_i: &ItypeShift, _m: &mut Machine| {});
+ins!(ADDW,  ItypeOp,     "addw",  |_i: &ItypeOp, _m: &mut Machine| {});
+ins!(SUBW,  ItypeOp,     "subw",  |_i: &ItypeOp, _m: &mut Machine| {});
+ins!(SLLW,  ItypeOp,     "sllw",  |_i: &ItypeOp, _m: &mut Machine| {});
+ins!(SRLW,  ItypeOp,     "srlw",  |_i: &ItypeOp, _m: &mut Machine| {});
+ins!(SRAW,  ItypeOp,     "sraw",  |_i: &ItypeOp, _m: &mut Machine| {});
 
 
 pub fn parse_instruction(i: u32) -> Box<dyn Instruction> {

@@ -221,7 +221,7 @@ pub struct Ntype {
 }
 
 impl From<u32> for Ntype {
-    fn from(inst: u32) -> Self {
+    fn from(_inst: u32) -> Self {
         Ntype {}
     }
 }
